@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曼陀罗计划表</title>
+    <style>
+        /* 添加背景图片样式 */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease;
+        }
+
+        /* 功能按钮样式 */
+        .button-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .action-button {
+            width: 150px;
+            height: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+        }
+
+        #intro { background-color: #FF0000; }
+        #save { background-color: #00FF00; }
+        #contact { background-color: #0000FF; }
+
+        /* 添加九宫格基础样式 */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px;
+            margin: 20px auto;
+        }
+
+        .sub-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .grid-item {
+            background: #2196F3;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 0;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 文本框样式 */
+        .text-input {
+            width: 90%;
+            height: 90%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            color: black;
+            font-family: "楷体", KaiTi, serif;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 5px;
+            margin: 0;
+            box-sizing: border-box;
+            resize: none;
+            overflow-y: auto;
+            line-height: 1.3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 根据内容长度动态调整字体大小 */
+        .text-input:not(:empty) {
+            font-size: clamp(10px, calc(60px / var(--length, 10)), 16px);
+        }
+
+        /* 为中心格子设置更大的字体 */
+        .grid-item.center .text-input {
+            font-size: 20px;  /* 中心格子字体更大 */
+        }
+
+        /* 为核心目标（最中心的格子）设置最大字体 */
+        .sub-grid:nth-child(5) .grid-item.center .text-input {
+            font-size: 18px;  /* 核心目标字体最大 */
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .text-input {
+                font-size: 16px;  /* 小屏幕时适当缩小 */
+            }
+            
+            .grid-item.center .text-input {
+                font-size: 18px;
+            }
+            
+            .sub-grid:nth-child(5) .grid-item.center .text-input {
+                font-size: 20px;
+            }
+        }
+
+        .grid-item.center {
+            background: #4CAF50;
+        }
+
+        h1 {
+            color: white;
+            margin-top: 100px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 40px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            position: absolute;
+            right: 25px;
+            top: 15px;
+            color: #aaa;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 32px;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .intro-text {
+            color: #333;
+            line-height: 1.8;
+            font-size: 20px;
+            text-indent: 2em;
+            margin: 20px 0;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 15% auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .modal-content h2 {
+                font-size: 24px;
+            }
+
+            .intro-text {
+                font-size: 16px;
+            }
+        }
+
+        /* 联系信息样式 */
+        .contact-info {
+            padding: 20px;
+            font-size: 20px;
+            line-height: 2;
+        }
+
+        .info-item {
+            margin: 15px 0;
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: #e9ecef;
+            transform: translateX(10px);
+        }
+
+        .label {
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .value {
+            color: #666;
+        }
+
+        .link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        /* 中心九宫格（核心目标）周围的8个格子变为黄色 */
+        .sub-grid:nth-child(5) .grid-item:not(.center) {
+            background: #FFC107;  /* 黄色背景 */
+        }
+
+        /* 从目标1到目标8的中心格子变为黄色 */
+        .sub-grid:not(:nth-child(5)) .grid-item.center {
+            background: #FFC107;  /* 黄色背景 */
+        }
+
+        /* 保持其他格子的原有样式 */
+        .grid-item {
+            background: #2196F3;  /* 蓝色背景，用于其他格子 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 0;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 核心目标格子保持绿色 */
+        .sub-grid:nth-child(5) .grid-item.center {
+            background: #4CAF50;  /* 绿色背景 */
+        }
+
+        /* 文本框焦点样式 */
+        .text-input:focus {
+            outline: none;
+            background: transparent;
+        }
+
+        /* 美化滚动条 */
+        .text-input::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .text-input::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .text-input::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 2px;
+        }
+
+        /* 添加额外的样式来确保文字居中 */
+        .text-input {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align-last: center;
+        }
+
+        /* 更新 placeholder 样式 */
+        .text-input::placeholder {
+            color: #000000;          /* 纯黑色 */
+            font-size: 16px;         /* 与文本框字体大小保持一致 */
+            font-weight: bold;       /* 加粗 */
+            opacity: 1;              /* 完全不透明 */
+            transition: opacity 0.2s; /* 平滑过渡 */
+        }
+
+        /* 获得焦点时的 placeholder 样式 */
+        .text-input:focus::placeholder {
+            opacity: 0.9;            /* 保持较高透明度 */
+        }
+
+        /* 核心目标的 placeholder 样式 */
+        .sub-grid:nth-child(5) .grid-item.center .text-input::placeholder {
+            font-size: 18px;          /* 与核心目标文本大小一致 */
+        }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- 功能按钮 -->
+    <div class="button-container">
+        <button class="action-button" id="intro">简介</button>
+        <button class="action-button" id="save">保存</button>
+        <button class="action-button" id="contact">联系作者</button>
+    </div>
+
+    <h1>曼陀罗计划表</h1>
+    
+    <!-- 九宫格主体 -->
+    <div class="main-grid">
+        <!-- 第一个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标1-8"></textarea></div>
+        </div>
+
+        <!-- 第二个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标2-8"></textarea></div>
+        </div>
+
+        <!-- 第三个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标3-8"></textarea></div>
+        </div>
+
+        <!-- 第四个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标4"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标4-8"></textarea></div>
+        </div>
+
+        <!-- 中心九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="核心目标"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="主目标8"></textarea></div>
+        </div>
+
+        <!-- 第六个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标5-8"></textarea></div>
+        </div>
+
+        <!-- 第七个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标6-8"></textarea></div>
+        </div>
+
+        <!-- 第八个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标7-8"></textarea></div>
+        </div>
+
+        <!-- 第九个九宫格 -->
+        <div class="sub-grid">
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-1"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-2"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-3"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-4"></textarea></div>
+            <div class="grid-item center"><textarea class="text-input" placeholder="主目标8"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-5"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-6"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-7"></textarea></div>
+            <div class="grid-item"><textarea class="text-input" placeholder="目标8-8"></textarea></div>
+        </div>
+    </div>
+
+    <!-- 在原有按钮下方添加模态框 -->
+    <div id="introModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>曼陀罗计划表简介</h2>
+            <p class="intro-text">
+                曼陀罗计划表（Mandala Chart）是一由日本学者野口吉彦（Yoshihiko Noguchi）提出的工具，旨在帮助个人和团队进行目标设定、思维整理、项目管理等工作。它以"曼陀罗"这一传统的佛教图形为灵感，采用九宫格的结构，将复杂的任务和目标进行可视化，便于清晰地规划和思考。
+            </p>
+        </div>
+    </div>
+
+    <!-- 添加联系作者模态框 -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>联系作者</h2>
+            <div class="contact-info">
+                <div class="info-item">
+                    <span class="label">作者：</span>
+                    <span class="value">layman6678</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">邮箱：</span>
+                    <span class="value">layman6678@2925.com</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">博客园：</span>
+                    <a href="https://www.cnblogs.com/layman6678" target="_blank" class="value link">@https://www.cnblogs.com/layman6678</a>
+                </div>
+                <div class="info-item">
+                    <span class="label">Github：</span>
+                    <a href="https://github.com/lay6678" target="_blank" class="value link">@https://github.com/lay6678</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加JavaScript -->
+    <script>
+    // 获取模态框元素
+    const modal = document.getElementById('introModal');
+    // 获取简介按钮
+    const introBtn = document.getElementById('intro');
+    // 获取关闭按钮
+    const closeBtn = document.getElementsByClassName('close')[0];
+
+    // 点击简介按钮打开模态框
+    introBtn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+    // 点击关闭按钮关闭模态框
+    closeBtn.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // 点击模态框外部关闭模态框
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape" && modal.style.display === "block") {
+            modal.style.display = "none";
+        }
+    });
+
+    // 获取保存按钮
+    const saveBtn = document.getElementById('save');
+
+    // 保存功能
+    saveBtn.onclick = function() {
+        // 获取要截图的区域（整个曼陀罗计划表）
+        const element = document.querySelector('.main-grid');
+        
+        // 添加加载提示
+        const loadingTip = document.createElement('div');
+        loadingTip.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            z-index: 10000;
+        `;
+        loadingTip.textContent = '正在生成图片，请稍候...';
+        document.body.appendChild(loadingTip);
+
+        // 设置截图选项
+        const options = {
+            backgroundColor: null,
+            scale: 2, // 提高图片质量
+            useCORS: true, // 允许加载跨域图片
+            logging: false,
+            onclone: function(clonedDoc) {
+                // 确保克隆的元素可见
+                const clonedElement = clonedDoc.querySelector('.main-grid');
+                clonedElement.style.overflow = 'visible';
+                clonedElement.style.background = 'transparent';
+            }
+        };
+
+        // 执行截图
+        html2canvas(element, options).then(canvas => {
+            // 移除加载提示
+            document.body.removeChild(loadingTip);
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = '曼陀罗计划表_' + new Date().toLocaleDateString() + '.png';
+            link.href = canvas.toDataURL('image/png');
+            
+            // 触发载
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }).catch(error => {
+            console.error('保存失败:', error);
+            document.body.removeChild(loadingTip);
+            alert('保存失败，请重试');
+        });
+    };
+
+    // 添加保存成功提示
+    function showSaveSuccess() {
+        const successTip = document.createElement('div');
+        successTip.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 10000;
+            animation: fadeInOut 2s ease-in-out;
+        `;
+        successTip.textContent = '保存功！';
+        document.body.appendChild(successTip);
+
+        // 2秒后移除提示
+        setTimeout(() => {
+            document.body.removeChild(successTip);
+        }, 2000);
+    }
+
+    // 添加动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            20% { opacity: 1; transform: translateY(0); }
+            80% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 获取联系作者按钮和模态框
+    const contactBtn = document.getElementById('contact');
+    const contactModal = document.getElementById('contactModal');
+    const contactCloseBtn = contactModal.querySelector('.close');
+
+    // 点击联系作者按钮打开模态框
+    contactBtn.onclick = function() {
+        contactModal.style.display = "block";
+    }
+
+    // 点击关闭按钮关闭模态框
+    contactCloseBtn.onclick = function() {
+        contactModal.style.display = "none";
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+        if (event.target == contactModal) {
+            contactModal.style.display = "none";
+        }
+    }
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape" && contactModal.style.display === "block") {
+            contactModal.style.display = "none";
+        }
+    });
+
+    // 在页面加载时随机设置背景图片
+    window.onload = function() {
+        // 背景图片数组
+        const backgroundImages = [
+            './images/1.png',
+            './images/2.png',
+            './images/3.png',
+            './images/4.png',
+            './images/5.png'
+        ];
+        
+        // 生成随机索引
+        const randomIndex = Math.floor(Math.random() * backgroundImages.length);
+        
+        // 设置随机背景图片
+        document.body.style.backgroundImage = `url('${backgroundImages[randomIndex]}')`;
+    }
+    </script>
+</body>
+</html> 

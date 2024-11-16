@@ -1,0 +1,408 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-image: url('images/1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+h1 {
+    color: white;
+    margin-top: 100px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.edit-hint {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    margin-top: 20px;
+    background: transparent;
+}
+
+.sub-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(255,255,255,0.1);
+}
+
+.grid-item {
+    background: #2196F3;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 5px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-item .text-input {
+    background: transparent;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.text-input {
+    width: 90%;
+    height: 30px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    background: transparent;
+    color: white;
+    font-family: "楷体", KaiTi, serif;
+}
+
+.text-input:focus {
+    background: white;
+    color: #333;
+    outline: none;
+}
+
+.grid-item.center {
+    background: #4CAF50;
+}
+
+.grid-item.center .text-input {
+    background: transparent;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+}
+
+.grid-item.center .text-input:focus {
+    background: white;
+    color: #333;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .main-grid {
+        gap: 10px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .text-input {
+        font-size: 12px;
+        height: 25px;
+    }
+}
+
+/* 中心九宫格的中心格子（绿色） */
+.sub-grid:nth-child(5) .grid-item.center {
+    background: #4CAF50;
+}
+
+.sub-grid:nth-child(5) .grid-item.center .text-input {
+    background: transparent;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+}
+
+.sub-grid:nth-child(5) .grid-item.center .text-input:focus {
+    background: white;
+    color: #333;
+}
+
+/* 中心九宫格周围的八个格子（黄色） */
+.sub-grid:nth-child(5) .grid-item:not(.center) {
+    background: #FFC107;
+}
+
+/* 中心九宫格的所有文本框样式 */
+.sub-grid:nth-child(5) .grid-item .text-input {
+    color: #000;
+}
+
+/* 其他八个九宫格的中心格子（黄色） */
+.sub-grid:not(:nth-child(5)) .grid-item.center {
+    background: #FFC107;
+}
+
+/* 黄色背景格子的文本框样式 */
+.grid-item[style*="background: #FFC107"] .text-input,
+.sub-grid:nth-child(5) .grid-item:not(.center) .text-input,
+.sub-grid:not(:nth-child(5)) .grid-item.center .text-input {
+    color: #000;
+}
+
+/* 确保中心九宫格的样式优先级更高 */
+.sub-grid:nth-child(5) .grid-item.center {
+    background: #4CAF50 !important;
+}
+
+/* 重新设计按钮样式，使其更加醒目 */
+.function-buttons {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    display: flex;
+    gap: 20px;
+    z-index: 1000;
+}
+
+.btn {
+    min-width: 120px;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.btn i {
+    font-size: 24px;
+}
+
+/* 为每个按钮设置鲜艳的颜色 */
+.btn-info {
+    background-color: #FF4081; /* 亮粉色 */
+}
+
+.btn-bg {
+    background-color: #00E676; /* 亮绿色 */
+}
+
+.btn-save {
+    background-color: #FF9100; /* 亮橙色 */
+}
+
+.btn-contact {
+    background-color: #00B0FF; /* 亮蓝色 */
+}
+
+/* 悬停效果 */
+.btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    filter: brightness(110%);
+}
+
+/* 确保按钮在黑色背景上清晰可见 */
+body {
+    background-color: #000000;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+h1 {
+    color: white;
+    margin-top: 150px; /* 给按钮留出空间 */
+    text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .function-buttons {
+        flex-wrap: wrap;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        justify-content: center;
+    }
+
+    .btn {
+        min-width: 100px;
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+
+    .btn i {
+        font-size: 20px;
+    }
+
+    h1 {
+        margin-top: 200px;
+    }
+}
+
+/* 添加按钮样式 */
+.intro-btn {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    padding: 15px 30px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+    background-color: #FFD700;
+    border: 3px solid #000000;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+.intro-btn:hover {
+    background-color: #FFC107;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* 确保按钮在背景图片上清晰可见 */
+.intro-btn {
+    z-index: 1000;
+}
+
+/* 功能按钮组样式 */
+.function-group {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    gap: 20px;
+    z-index: 9999;
+}
+
+.function-btn {
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+    background-color: #FFD700;
+    border: 3px solid #000000;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.function-btn:hover {
+    background-color: #FFC107;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* 为每个按钮设置不同的背景色 */
+#introBtn {
+    background-color: #FF4081;
+    color: white;
+}
+
+#saveBtn {
+    background-color: #00E676;
+    color: white;
+}
+
+#contactBtn {
+    background-color: #00B0FF;
+    color: white;
+}
+
+/* 悬停效果 */
+.function-btn:hover {
+    filter: brightness(110%);
+    transform: translateY(-3px);
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1001;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+}
+
+/* 联系表单样式 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
